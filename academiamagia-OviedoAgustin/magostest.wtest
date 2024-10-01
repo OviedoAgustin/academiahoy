@@ -1,0 +1,110 @@
+import academia.*
+import magos.*
+describe "academina" {
+
+    method configurarAcademia(){
+        [balthazar, selene, iris, aldric].forEach {
+            mago => academina.unirse(mago)
+        }
+    }
+    test "reclutando a aldric, pero no puede debido a su bajo poder, por lo que queda como candidato" {
+      // act
+      academina.unirse(aldric)
+      //evaluando
+      assert.that(academina.candidatos().contains(aldric))
+      assert.that(academina.equipo().isEmpty())
+    }
+
+    test "Aldric intenta unirse a la academia, no lo logra, cambia al baston de fuego y entrena. la academia evalua candidatos y ahora entra al equipo" {
+      // arrange
+      academina.unirse(aldric)
+      aldric.bastonEquipado(bastonDeFuego)
+      aldric.entrenar()
+      //act
+      academina.volverAEvaluar()
+      // testing
+      assert.that(academina.equipo().contains(aldric))
+    }
+
+    test "Selene alterna luz lunar y entrena. Si la evaluaran no podrias entrar en el equipo por que su energia es 35 aunque su poder es 120" {
+      // arrange
+      selene.alternar()
+      selene.entrenar()
+      //testing
+      assert.notThat(academina.evaluar(selene))
+      assert.equals(120, selene.poder())
+      assert.equals(35, selene.energia())
+    }
+
+    test "Esta vez, selene solo entrena sin alternar. Ahora si podria entrar si la evaluaran porque su energia seria 60" {
+      //arrange
+      selene.entrenar()
+      // testing
+      assert.that(academina.evaluar(selene))
+      assert.equals(60, selene.poder())
+      assert.equals(60, selene.energia())
+    }
+
+    test "balthazar puede ser reclutado al inicio, pero despues de entrenar dos veces ya no puede ser reclutado porque su poder baja a 29 V1" {
+      // act
+      academina.unirse(balthazar)
+      // testing
+      assert.that(academina.equipo().contains(balthazar))
+    }
+
+    test "Balthazar puede ser reclutado al inicio, pero despues de entrenar dos veces ya no puede ser reclutado porque su poder baja a 29 V2" {
+      // arrange
+      balthazar.entrenar()
+      balthazar.entrenar()
+      // act
+      academina.unirse(balthazar)
+      // testing
+      assert.that(academina.candidatos().contains(balthazar))
+      assert.equals(65, balthazar.energia())
+      assert.equals(29, balthazar.poder())
+      
+    }
+
+    test "Iris usa su poder de sanacion en el escudo magico de arcana, elevando su resistencia a 550 y su durabilidad a 700" {
+      // act
+      iris.escudoMagico()
+      // testing
+      assert.equals(550, escudo.resistencia())
+      assert.equals(700, escudo.durabilidad())
+    }
+
+    test "Iris entrena y usa su poder de sanacion en el escudo magico de arcana, elevando su resistencia a 480 y su durabilidad a 760" {
+      // arrange
+      iris.entrenar()
+      // act
+      iris.escudoMagico()
+      // testing
+      assert.equals(480, escudo.resistencia())
+      assert.equals(780, escudo.durabilidad())
+    }
+
+    test "La academia recluta a los 4 magos y comprueba si iris y balthazar pertenecen al equipo" {
+      // act
+      self.configurarAcademia()
+        //academina.unirse(iris)
+        //academina.unirse(balthazar)
+        //academina.unirse(aldric)
+        //academina.unirse(selene)
+      // testing
+      assert.equals([balthazar, iris], academina.equipo())
+        //assert.that(academina.equipo().contains(iris))
+        //assert.that(academina.equipo().contains(balthazar))
+    }
+
+    test "Entrenan selene y balthazar 1 vez, recluta a los 4 magos y validar todos los test" {
+      // act
+      selene.entrenar()
+      balthazar.entrenar()
+      self.configurarAcademia()
+      // testing
+      assert.equals([balthazar, selene, iris], academina.equipo())
+      assert.equals(127, academina.poderTotal())
+      assert.equals(5, academina.deltaDeEnergia()) // ver en la clase del sabado porque pusieron 5
+      assert.that(academina.estanEnCondiciones())
+    }
+}
